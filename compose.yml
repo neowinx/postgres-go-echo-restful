@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:14
+    environment:
+      #POSTGRES_USER: super
+      POSTGRES_PASSWORD: super123
+      POSTGRES_DB: super
+      TZ: America/Asuncion
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+      - ./database/:/docker-entrypoint-initdb.d/:ro
