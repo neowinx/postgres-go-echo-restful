@@ -7,9 +7,11 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"postgres-go-echo-htmx-bulma/pkg/db"
 	"strconv"
-	"postgres-go-echo-htmx-bulma/pkg/db" // Import the generated code from sqlc
+
 	"github.com/gorilla/mux"
+	"github.com/jackc/pgx/v5"
 )
 
 // Hero represents the Hero model.
@@ -27,13 +29,26 @@ func CreateHeroHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := context.Background()
-	err := db.CreateHero(ctx, hero.ID, hero.Name)
+
+  conn, err := pgx.Connect(ctx, "")
+  if err != nil {
+    return
+  }
+  defer conn.Close(ctx)
+
+  queries := db.New(conn)
+
+	v, err := queries.CreateHero(ctx, hero.Name)
 	if err != nil {
 		http.Error(w, "Failed to create hero", http.StatusInternalServerError)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+  if v.ID != -1 {
+    w.WriteHeader(http.StatusCreated)
+  } else {
+    w.WriteHeader(http.StatusBadRequest)
+  }
 }
 
 // GetHeroHandler retrieves a hero by ID.
