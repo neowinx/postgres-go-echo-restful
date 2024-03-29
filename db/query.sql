@@ -8,9 +8,11 @@ ORDER BY name;
 
 -- name: CreateHero :one
 INSERT INTO hero (
+  id,
   name
 ) VALUES (
-  $1
+  $1,
+  $2
 )
 RETURNING *;
 

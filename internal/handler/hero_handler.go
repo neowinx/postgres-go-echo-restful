@@ -1,145 +1,121 @@
-// internal/handler/hero_handler.go
-
 package handler
 
 import (
-	"context"
-	"database/sql"
-	"encoding/json"
-	"net/http"
-	"postgres-go-echo-htmx-bulma/pkg/db"
-	"strconv"
+    "context"
+    "database/sql"
+    "net/http"
+    "strconv"
 
-	"github.com/gorilla/mux"
-	"github.com/jackc/pgx/v5"
+    "github.com/labstack/echo/v4"
+    "postgres-go-echo-htmx-bulma/pkg/db"
+    "github.com/jackc/pgx/v5/pgxpool"
 )
 
 // Hero represents the Hero model.
 type Hero struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+    ID   int    `json:"id"`
+    Name string `json:"name"`
+}
+
+// ListHeroHandler handles the creation of a new hero.
+func ListHeroHandler(dbpool *pgxpool.Pool) echo.HandlerFunc {
+    return func(c echo.Context) error {
+        ctx := context.Background()
+        heroes, err := db.New(dbpool).ListHeros(ctx)
+        if err != nil {
+            return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to list heroes"})
+        }
+
+        return c.JSON(http.StatusCreated, heroes)
+    }
 }
 
 // CreateHeroHandler handles the creation of a new hero.
-func CreateHeroHandler(w http.ResponseWriter, r *http.Request) {
-	var hero Hero
-	if err := json.NewDecoder(r.Body).Decode(&hero); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
-		return
-	}
+func CreateHeroHandler(dbpool *pgxpool.Pool) echo.HandlerFunc {
+    return func(c echo.Context) error {
+        var hero Hero
+        if err := c.Bind(&hero); err != nil {
+            return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
+        }
 
-	ctx := context.Background()
+        ctx := context.Background()
+        arg := db.CreateHeroParams{
+            Name: hero.Name,
+        }
+        result, err := db.New(dbpool).CreateHero(ctx, arg)
+        if err != nil {
+            return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create hero"})
+        }
 
-  conn, err := pgx.Connect(ctx, "")
-  if err != nil {
-    return
-  }
-  defer conn.Close(ctx)
-
-  queries := db.New(conn)
-
-	v, err := queries.CreateHero(ctx, hero.Name)
-	if err != nil {
-		http.Error(w, "Failed to create hero", http.StatusInternalServerError)
-		return
-	}
-
-  if v.ID != -1 {
-    w.WriteHeader(http.StatusCreated)
-  } else {
-    w.WriteHeader(http.StatusBadRequest)
-  }
+        return c.JSON(http.StatusCreated, result)
+    }
 }
 
 // GetHeroHandler retrieves a hero by ID.
-func GetHeroHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, ok := vars["id"]
-	if !ok {
-		http.Error(w, "Missing ID in the request", http.StatusBadRequest)
-		return
-	}
+func GetHeroHandler(dbpool *pgxpool.Pool) echo.HandlerFunc {
+    return func(c echo.Context) error {
+        id, err := strconv.Atoi(c.Param("id"))
+        if err != nil {
+            return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID in the request"})
+        }
 
-	// Convert the ID to an integer (you might want to add error handling here)
-	heroID, err := strconv.Atoi(id)
-	if err != nil {
-		http.Error(w, "Invalid ID in the request", http.StatusBadRequest)
-		return
-	}
+        ctx := context.Background()
+        result, err := db.New(dbpool).GetHero(ctx, int32(id))
+        if err == sql.ErrNoRows {
+            return c.JSON(http.StatusNotFound, map[string]string{"error": "Hero not found"})
+        } else if err != nil {
+            return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to fetch hero"})
+        }
 
-	ctx := context.Background()
-	hero, err := db.GetHeroByID(ctx, heroID)
-	if err == sql.ErrNoRows {
-		http.NotFound(w, r)
-		return
-	} else if err != nil {
-		http.Error(w, "Failed to fetch hero", http.StatusInternalServerError)
-		return
-	}
-
-	json.NewEncoder(w).Encode(hero)
+        return c.JSON(http.StatusOK, result)
+    }
 }
 
 // UpdateHeroHandler updates a hero by ID.
-func UpdateHeroHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, ok := vars["id"]
-	if !ok {
-		http.Error(w, "Missing ID in the request", http.StatusBadRequest)
-		return
-	}
+func UpdateHeroHandler(dbpool *pgxpool.Pool) echo.HandlerFunc {
+    return func(c echo.Context) error {
+        id, err := strconv.Atoi(c.Param("id"))
+        if err != nil {
+            return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID in the request"})
+        }
 
-	// Convert the ID to an integer (you might want to add error handling here)
-	heroID, err := strconv.Atoi(id)
-	if err != nil {
-		http.Error(w, "Invalid ID in the request", http.StatusBadRequest)
-		return
-	}
+        var updatedHero Hero
+        if err := c.Bind(&updatedHero); err != nil {
+            return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
+        }
 
-	var updatedHero Hero
-	if err := json.NewDecoder(r.Body).Decode(&updatedHero); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
-		return
-	}
+        ctx := context.Background()
+        arg := db.UpdateHeroParams{
+            ID:   int32(id),
+            Name: updatedHero.Name,
+        }
+        err = db.New(dbpool).UpdateHero(ctx, arg)
+        if err == sql.ErrNoRows {
+            return c.JSON(http.StatusNotFound, map[string]string{"error": "Hero not found"})
+        } else if err != nil {
+            return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to update hero"})
+        }
 
-	ctx := context.Background()
-	err = db.UpdateHero(ctx, heroID, updatedHero.Name)
-	if err == sql.ErrNoRows {
-		http.NotFound(w, r)
-		return
-	} else if err != nil {
-		http.Error(w, "Failed to update hero", http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
+        return c.JSON(http.StatusOK, map[string]string{"message": "Hero updated successfully"})
+    }
 }
 
 // DeleteHeroHandler deletes a hero by ID.
-func DeleteHeroHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, ok := vars["id"]
-	if !ok {
-		http.Error(w, "Missing ID in the request", http.StatusBadRequest)
-		return
-	}
+func DeleteHeroHandler(dbpool *pgxpool.Pool) echo.HandlerFunc {
+    return func(c echo.Context) error {
+        id, err := strconv.Atoi(c.Param("id"))
+        if err != nil {
+            return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID in the request"})
+        }
 
-	// Convert the ID to an integer (you might want to add error handling here)
-	heroID, err := strconv.Atoi(id)
-	if err != nil {
-		http.Error(w, "Invalid ID in the request", http.StatusBadRequest)
-		return
-	}
+        ctx := context.Background()
+        err = db.New(dbpool).DeleteHero(ctx, int32(id))
+        if err == sql.ErrNoRows {
+            return c.JSON(http.StatusNotFound, map[string]string{"error": "Hero not found"})
+        } else if err != nil {
+            return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to delete hero"})
+        }
 
-	ctx := context.Background()
-	err = db.DeleteHero(ctx, heroID)
-	if err == sql.ErrNoRows {
-		http.NotFound(w, r)
-		return
-	} else if err != nil {
-		http.Error(w, "Failed to delete hero", http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusNoContent)
+        return c.NoContent(http.StatusNoContent)
+    }
 }

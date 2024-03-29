@@ -11,15 +11,22 @@ import (
 
 const createHero = `-- name: CreateHero :one
 INSERT INTO hero (
+  id,
   name
 ) VALUES (
-  $1
+  $1,
+  $2
 )
 RETURNING id, name
 `
 
-func (q *Queries) CreateHero(ctx context.Context, name string) (Hero, error) {
-	row := q.db.QueryRow(ctx, createHero, name)
+type CreateHeroParams struct {
+	ID   int32
+	Name string
+}
+
+func (q *Queries) CreateHero(ctx context.Context, arg CreateHeroParams) (Hero, error) {
+	row := q.db.QueryRow(ctx, createHero, arg.ID, arg.Name)
 	var i Hero
 	err := row.Scan(&i.ID, &i.Name)
 	return i, err
