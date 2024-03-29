@@ -67,6 +67,38 @@ paths:
             type: object
       summary: Create a new hero
   /heroes/{id}:
+    delete:
+      description: Deletes a hero from the database by its ID
+      parameters:
+      - description: Hero ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a hero
     get:
       description: Retrieves a hero from the database by its ID
       parameters:
@@ -101,4 +133,46 @@ paths:
               type: string
             type: object
       summary: Get a hero by ID
+    put:
+      description: Updates a hero in the database by its ID
+      parameters:
+      - description: Hero ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Hero information
+        in: body
+        name: hero
+        required: true
+        schema:
+          $ref: '#/definitions/handler.Hero'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update a hero
 swagger: "2.0"

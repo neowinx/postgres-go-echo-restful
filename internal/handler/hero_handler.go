@@ -104,6 +104,7 @@ func GetHeroHandler(dbpool *pgxpool.Pool) echo.HandlerFunc {
 //	@Failure		400	{object}	map[string]string	//	Detail		error	messages	for	bad			requests
 //	@Failure		404	{object}	map[string]string	//	Specific	error	message		for	not			found
 //	@Failure		500	{object}	map[string]string	//	Generic		error	message		for	internal	errors
+//	@Router			/heroes/{id}   [put]
 func UpdateHeroHandler(dbpool *pgxpool.Pool) echo.HandlerFunc {
   return func(c echo.Context) error {
     id, err := strconv.Atoi(c.Param("id"))
@@ -141,6 +142,7 @@ func UpdateHeroHandler(dbpool *pgxpool.Pool) echo.HandlerFunc {
 //	@Failure		400	{object}	map[string]string	//	Detail		error	messages	for	bad			requests
 //	@Failure		404	{object}	map[string]string	//	Specific	error	message		for	not			found
 //	@Failure		500	{object}	map[string]string	//	Generic		error	message		for	internal	errors
+//	@Router			/heroes/{id}   [delete]
 func DeleteHeroHandler(dbpool *pgxpool.Pool) echo.HandlerFunc {
   return func(c echo.Context) error {
     id, err := strconv.Atoi(c.Param("id"))
