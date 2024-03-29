@@ -1,6 +1,7 @@
 package main
 
 import (
+  "github.com/swaggo/echo-swagger"
 	"context"
 	"log"
 	"os"
@@ -8,8 +9,19 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
+	_ "postgres-go-echo-htmx-bulma/docs"
 )
 
+//	@title			Swagger Example API
+//	@version		1.0
+//	@description	This is a sample server
+
+//	@contact.name	Pedro Flores
+//	@contact.url	http://codelab.com.py
+//	@contact.email	hola@codelab.com.py
+
+//	@license.name	Apache 2.0
+//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
 
   // Get the database connection string from environment variable or configuration file
@@ -41,23 +53,22 @@ func main() {
 	// Create a new Echo instance
 	e := echo.New()
 
-	// Define routes
-  e.GET("/heroes", func(c echo.Context) error {
-      return handler.ListHeroHandler(dbpool)(c)
-  })
-  e.POST("/heroes", func(c echo.Context) error {
-      return handler.CreateHeroHandler(dbpool)(c)
-  })
-  e.GET("/heroes/:id", func(c echo.Context) error {
-      return handler.GetHeroHandler(dbpool)(c)
-  })
-  e.PUT("/heroes/:id", func(c echo.Context) error {
-      return handler.UpdateHeroHandler(dbpool)(c)
-  })
-  e.DELETE("/heroes/:id", func(c echo.Context) error {
-      return handler.DeleteHeroHandler(dbpool)(c)
-  })
+  // Initialize handlers and pass dbpool to them
+  initHandlers(e, dbpool)
+
+  e.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	// Start the server
 	e.Logger.Fatal(e.Start(":8080"))
 }
+
+// Initialize handlers and pass dbpool to them
+func initHandlers(e *echo.Echo, dbpool *pgxpool.Pool) {
+    // Create handlers and pass dbpool to them
+    e.GET("/heroes", handler.ListHeroHandler(dbpool))
+    e.POST("/heroes", handler.CreateHeroHandler(dbpool))
+    e.GET("/heroes/:id", handler.GetHeroHandler(dbpool))
+    e.PUT("/heroes/:id", handler.UpdateHeroHandler(dbpool))
+    e.DELETE("/heroes/:id", handler.DeleteHeroHandler(dbpool))
+}
+
