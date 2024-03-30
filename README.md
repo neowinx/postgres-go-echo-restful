@@ -25,7 +25,7 @@ export DATABASE_URI="postgresql://postgres:postgres@localhost:5432/super"
 ./server
 ```
 
-or if you just want to start develop the project. Run the web/server.go file directly
+or if you just want to start fideling around. Run the `web/server.go` file directly
 
 ```shell
 export DATABASE_URI="postgresql://postgres:postgres@localhost:5432/super"
@@ -34,7 +34,7 @@ go run ./web/server.go
 
 ## SQLC generation
 
-This project uses [sqlc](https://sqlc.dev/) for the database abstraction. In order to generate the queries jsut edit the `querys.sql` file and then execute: 
+This project uses [sqlc](https://sqlc.dev/) for the database abstraction. In order to generate the queries just edit the `querys.sql` file and then execute: 
 
 ```shell
 sqlc generate
@@ -51,4 +51,4 @@ issuing the next command in order to generate the documentation based on the com
 swag init -g server.go -d ./web,./internal/handler
 ```
 
-NOTE: This needs to be executed everytime you need to update the swagger documentaion
+NOTE: This needs to be executed everytime you need to update the swagger documentation
