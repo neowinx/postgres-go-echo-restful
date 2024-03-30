@@ -13,7 +13,7 @@ import (
 
 // Hero represents the Hero model.
 type Hero struct {
-  ID   int    `json:"id"`
+  ID   *int    `json:"id,omitempty"`
   Name string `json:"name"`
 }
 
@@ -53,15 +53,25 @@ func CreateHeroHandler(dbpool *pgxpool.Pool) echo.HandlerFunc {
     }
 
     ctx := context.Background()
-    arg := db.CreateHeroParams{
-      Name: hero.Name,
-    }
-    result, err := db.New(dbpool).CreateHero(ctx, arg)
-    if err != nil {
-      return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create hero"})
-    }
 
-    return c.JSON(http.StatusCreated, result)
+    // TODO: try to DRY this part
+    if hero.ID == nil {
+      result, err := db.New(dbpool).CreateHero(ctx, hero.Name)
+      if err != nil {
+        return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create hero"})
+      }
+      return c.JSON(http.StatusCreated, result)
+    } else {
+      arg := db.CreateHeroWithIDParams {
+        ID: int32(*hero.ID),
+        Name: hero.Name,
+      }
+      result, err := db.New(dbpool).CreateHeroWithID(ctx, arg)
+      if err != nil {
+        return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create hero"})
+      }
+      return c.JSON(http.StatusCreated, result)
+    }
   }
 }
 

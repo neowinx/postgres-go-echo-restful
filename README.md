@@ -32,6 +32,16 @@ export DATABASE_URI="postgresql://postgres:postgres@localhost:5432/super"
 go run ./web/server.go
 ```
 
+## SQLC generation
+
+This project uses [sqlc](https://sqlc.dev/) for the database abstraction. In order to generate the queries jsut edit the `querys.sql` file and then execute: 
+
+```shell
+sqlc generate
+```
+
+to generate the interfaces and magic stuff in `pkg/db`
+
 ## Swagger Generation
 
 The swagger documentation is generated using [swaggo](https://github.com/swaggo/swag) and [swagger-echo](https://github.com/swaggo/echo-swagger) respectively. This works by

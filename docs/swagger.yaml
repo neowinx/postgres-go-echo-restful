@@ -11,11 +11,11 @@ info:
     email: hola@codelab.com.py
     name: Pedro Flores
     url: http://codelab.com.py
-  description: This is a sample server
+  description: This is a super API. Don't think otherwise
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  title: Swagger Example API
+  title: Super API
   version: "1.0"
 paths:
   /heroes:

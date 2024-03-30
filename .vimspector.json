@@ -10,7 +10,7 @@
       },
       "configuration": {
         "request": "launch",
-        "program": "${fileDirname}",
+        "program": "./web/server.go",
         "mode": "debug",
         "env": {
           "DATABASE_URI": "postgresql://postgres:postgres@localhost:5432/super"

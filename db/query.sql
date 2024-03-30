@@ -6,13 +6,21 @@ WHERE id = $1 LIMIT 1;
 SELECT * FROM hero
 ORDER BY name;
 
--- name: CreateHero :one
+-- name: CreateHeroWithID :one
 INSERT INTO hero (
   id,
   name
 ) VALUES (
   $1,
   $2
+)
+RETURNING *;
+
+-- name: CreateHero :one
+INSERT INTO hero (
+  name
+) VALUES (
+  $1
 )
 RETURNING *;
 

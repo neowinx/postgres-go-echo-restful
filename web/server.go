@@ -12,9 +12,9 @@ import (
 	_ "postgres-go-echo-htmx-bulma/docs"
 )
 
-//	@title			Swagger Example API
+//	@title			Super API
 //	@version		1.0
-//	@description	This is a sample server
+//	@description	This is a super API. Don't think otherwise
 
 //	@contact.name	Pedro Flores
 //	@contact.url	http://codelab.com.py

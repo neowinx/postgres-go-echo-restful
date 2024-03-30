@@ -11,6 +11,22 @@ import (
 
 const createHero = `-- name: CreateHero :one
 INSERT INTO hero (
+  name
+) VALUES (
+  $1
+)
+RETURNING id, name
+`
+
+func (q *Queries) CreateHero(ctx context.Context, name string) (Hero, error) {
+	row := q.db.QueryRow(ctx, createHero, name)
+	var i Hero
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}
+
+const createHeroWithID = `-- name: CreateHeroWithID :one
+INSERT INTO hero (
   id,
   name
 ) VALUES (
@@ -20,13 +36,13 @@ INSERT INTO hero (
 RETURNING id, name
 `
 
-type CreateHeroParams struct {
+type CreateHeroWithIDParams struct {
 	ID   int32
 	Name string
 }
 
-func (q *Queries) CreateHero(ctx context.Context, arg CreateHeroParams) (Hero, error) {
-	row := q.db.QueryRow(ctx, createHero, arg.ID, arg.Name)
+func (q *Queries) CreateHeroWithID(ctx context.Context, arg CreateHeroWithIDParams) (Hero, error) {
+	row := q.db.QueryRow(ctx, createHeroWithID, arg.ID, arg.Name)
 	var i Hero
 	err := row.Scan(&i.ID, &i.Name)
 	return i, err

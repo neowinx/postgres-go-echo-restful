@@ -1,8 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "This is a sample server",
-        "title": "Swagger Example API",
+        "description": "This is a super API. Don't think otherwise",
+        "title": "Super API",
         "contact": {
             "name": "Pedro Flores",
             "url": "http://codelab.com.py",
