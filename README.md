@@ -32,6 +32,8 @@ export DATABASE_URI="postgresql://postgres:postgres@localhost:5432/super"
 go run ./web/server.go
 ```
 
+and then you can go to this url to access the swagger documentation http://127.0.0.1:8080/swagger/index.html
+
 ## SQLC generation
 
 This project uses [sqlc](https://sqlc.dev/) for the database abstraction. In order to generate the queries just edit the `querys.sql` file and then execute: 
@@ -52,3 +54,25 @@ swag init -g server.go -d ./web,./internal/handler
 ```
 
 NOTE: This needs to be executed everytime you need to update the swagger documentation
+
+## Docker
+
+There is a `compose.yml` configuration to use with [docker-compose](https://docs.docker.com/compose/)
+
+Just run this command and it will build and run database and application images:
+
+```shell
+docker compose up -d
+```
+
+and then go to this url in your browser http://127.0.0.1:8080/swagger/index.html
+
+once you quit playing around with it you can issue the next command to stop the services and delete the images
+
+```shell
+docker compose down -v --rmi local
+```
+
+## Enjoy
+
+Pedro

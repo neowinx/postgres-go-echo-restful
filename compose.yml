@@ -1,5 +1,6 @@
 version: "3.9"
 services:
+
   db:
     image: postgres:14
     environment:
@@ -8,5 +9,28 @@ services:
       POSTGRES_DB: super
       TZ: America/Asuncion
     volumes:
-      - ./postgres:/var/lib/postgresql/data
-      - ./database/:/docker-entrypoint-initdb.d/:ro
+      # Uncomment this if you want a persistent database
+      # - ./postgres:/var/lib/postgresql/data
+      - ./db/migrations/:/docker-entrypoint-initdb.d/:ro
+    networks:
+      - backend
+
+  backend:
+    build: .
+    environment:
+      DATABASE_URI: "postgresql://postgres:super123@db:5432/super"
+      TZ: America/Asuncion
+    # Let's not expose our backend port outside the docker network
+    ports:
+    - "8080:8080"
+    networks:
+      - backend
+    depends_on:
+      - db
+    links:
+      - db
+    # volumes:
+    #   - ./uploaded_files:/usr/src/app/static/uploaded_files
+
+networks:
+  backend:
