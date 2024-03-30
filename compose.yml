@@ -8,6 +8,12 @@ services:
       POSTGRES_PASSWORD: super123
       POSTGRES_DB: super
       TZ: America/Asuncion
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "super"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      # start_period: 80s
     volumes:
       # Uncomment this if you want a persistent database
       # - ./postgres:/var/lib/postgresql/data
@@ -26,7 +32,9 @@ services:
     networks:
       - backend
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+        restart: true
     links:
       - db
     # volumes:
