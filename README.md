@@ -10,7 +10,7 @@ A small skeleton project for a RESTful API using Go with Echo that uses a Postgr
 ## Initial setup
 
 ```shell
-git clone git@github.com/neowinx/postgres-go-echo-htmx-bulma.git
+git clone git@github.com:neowinx/postgres-go-echo-restful.git
 cd postgres-go-echo-htmx-bulma
 go build
 ```
